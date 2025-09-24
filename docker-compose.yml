@@ -2,6 +2,8 @@ version: '3.8'
 services:
   embed-api:
     build: .
+    env_file:
+      - .env
     runtime: nvidia
     deploy:
       resources:
@@ -12,6 +14,7 @@ services:
               capabilities: [gpu]
     environment:
       - CUDA_VISIBLE_DEVICES=1
+      # HUGGING_FACE_HUB_TOKEN is now loaded from .env
     ports:
       - "8001:8000"
     container_name: embed-api
