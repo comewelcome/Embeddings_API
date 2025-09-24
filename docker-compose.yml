@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  embed-api:
+    build: .
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - CUDA_VISIBLE_DEVICES=1
+    ports:
+      - "8001:8000"
+    container_name: embed-api
