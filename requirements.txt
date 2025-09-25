@@ -1,0 +1,6 @@
+pypdf
+qdrant-client
+httpx
+tabulate
+langchain
+langchain-community
