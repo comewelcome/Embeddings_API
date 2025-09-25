@@ -4,3 +4,4 @@ httpx
 tabulate
 langchain
 langchain-community
+plotly

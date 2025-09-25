@@ -3,9 +3,9 @@ from qdrant_client import QdrantClient, models
 from typing import List
 import httpx
 import asyncio
-from tabulate import tabulate
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+import plotly.graph_objects as go
 
 # Configuration
 PDF_PATH = "Suivi livrables DEV-IA - Comparatif Projet(s) Vs Référentiel.pdf"
@@ -99,9 +99,17 @@ def display_qdrant_collection_info(collection_name: str, qdrant_host: str, qdran
         if hasattr(collection_info.config.optimizer_config, 'disk_size_bytes'):
             disk_size = f"{collection_info.config.optimizer_config.disk_size_bytes} bytes"
         data.append(["Disk Size", disk_size])
-        data.append(["Config", collection_info.config])
+        data.append(["Config", str(collection_info.config)])
 
-        print(tabulate(data, headers="firstrow", tablefmt="grid"))
+        fig = go.Figure(data=[go.Table(
+            header=dict(values=['Attribute', 'Value'],
+                        fill_color='paleturquoise',
+                        align='left'),
+            cells=dict(values=[[row for row in data[1:]], [row for row in data[1:]]],
+                       fill_color='lavender',
+                       align='left'))
+        ])
+        fig.show()
         print(f"--- End Collection Info ---\n")
     except Exception as e:
         print(f"Error retrieving collection info for '{collection_name}': {e}")
@@ -123,14 +131,19 @@ def display_collection_contents_in_table(collection_name: str, qdrant_host: str,
             print(f"\nNo points found in collection '{collection_name}'.")
             return
 
-        table_data = [["ID", "Embedding (first 5 elements)", "Text Payload"]]
-        for point in scroll_result:
-            embedding_preview = str(point.vector[:5]) + "..." if point.vector else "N/A"
-            text_payload = point.payload.get("text", "N/A") if point.payload else "N/A"
-            table_data.append([point.id, embedding_preview, text_payload])
+        ids = [point.id for point in scroll_result]
+        embedding_previews = [str(point.vector[:5]) + "..." if point.vector else "N/A" for point in scroll_result]
+        text_payloads = [point.payload.get("text", "N/A") if point.payload else "N/A" for point in scroll_result]
         
-        print(f"\n--- Qdrant Collection Contents for '{collection_name}' ---")
-        print(tabulate(table_data, headers="firstrow", tablefmt="grid"))
+        fig = go.Figure(data=[go.Table(
+            header=dict(values=['ID', 'Embedding (first 5 elements)', 'Text Payload'],
+                        fill_color='paleturquoise',
+                        align='left'),
+            cells=dict(values=[ids, embedding_previews, text_payloads],
+                       fill_color='lavender',
+                       align='left'))
+        ])
+        fig.show()
         print(f"--- End Collection Contents ---\n")
 
     except Exception as e:
