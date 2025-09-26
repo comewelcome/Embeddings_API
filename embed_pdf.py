@@ -158,8 +158,8 @@ async def main():
     documents = loader.load()
     
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
+        chunk_size=2048,
+        chunk_overlap=100,
         length_function=len,
         add_start_index=True,
     )
